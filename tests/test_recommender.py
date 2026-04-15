@@ -73,12 +73,14 @@ def test_explain_recommendation_returns_non_empty_string():
     assert explanation.strip() != ""
 
 
-def test_default_taste_profile_prefers_intense_rock_over_chill_lofi():
+def test_default_taste_profile_prefers_pop_then_rock_with_weight_shift():
     rec = make_small_recommender()
     user = UserProfile(**DEFAULT_TASTE_PROFILE)
 
     results = rec.recommend(user, k=3)
 
-    assert results[0].genre == "rock"
-    assert results[0].mood == "intense"
-    assert results[0].title == "Heavy Guitar Rush"
+    assert results[0].genre == "pop"
+    assert results[0].mood == "happy"
+    assert results[0].title == "Test Pop Track"
+    assert results[1].genre == "rock"
+    assert results[2].genre == "lofi"

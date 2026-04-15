@@ -73,8 +73,8 @@ def _score_song_against_profile(user_prefs: Dict[str, Any], song: Dict[str, Any]
     song_mood = _normalize_text(song.get("mood", ""))
 
     if favorite_genre and song_genre == favorite_genre:
-        score += 2.0
-        reasons.append("genre match (+2.0)")
+        score += 1.0
+        reasons.append("genre match (+1.0)")
 
     if favorite_mood and song_mood == favorite_mood:
         score += 2.0
@@ -83,7 +83,7 @@ def _score_song_against_profile(user_prefs: Dict[str, Any], song: Dict[str, Any]
     target_energy = float(user_prefs.get("target_energy", 0.5))
     song_energy = float(song.get("energy", 0.0))
     energy_match = max(0.0, 1.0 - abs(song_energy - target_energy))
-    energy_points = energy_match * 2.5
+    energy_points = energy_match * 5.0
     score += energy_points
     reasons.append(f"energy similarity (+{energy_points:.2f})")
 

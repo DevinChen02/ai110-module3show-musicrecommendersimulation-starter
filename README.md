@@ -104,6 +104,16 @@ python -m src.main
 
 ![CLI verification screenshot](CLIveri.png)
 
+### Example Mood Images
+
+These images can be used to show the kinds of listening moods the recommender is aiming to capture:
+
+![Chill lo-fi vibe](chilllofi.png)
+
+![Deep intense rock vibe](deepintenserock.png)
+
+![High energy pop vibe](highenergypop.png)
+
 ### Running Tests
 
 Run the starter tests with:
@@ -123,6 +133,30 @@ Use this section to document the experiments you ran. For example:
 - What happened when you changed the weight on genre from 2.0 to 0.5
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
+
+### Adversarial / Edge-Case Profiles
+
+The runner in `src/main.py` includes an `ADVERSARIAL_USER_PROFILES` dictionary you can use for stress-testing scoring behavior.
+
+Profiles included:
+
+- `Conflicting Mood-Energy`: `ambient + sad + target_energy=0.95`
+- `String Bool Trap`: `likes_acoustic="False"` (tests Python bool coercion)
+- `Out-Of-Range High Energy`: `target_energy=5.0`
+- `Out-Of-Range Low Energy`: `target_energy=-2.0`
+- `Unknown Category Labels`: genre/mood not in catalog
+- `Empty Category Inputs`: blank genre and mood
+- `Whitespace Casing`: extra spaces and mixed case (`"  PoP  "`, `" HAPPY "`)
+- `Type Coercion Categories`: non-string categorical inputs (`["pop"]`, `None`)
+- `Acoustic Preference Conflict`: high energy target with acoustic preference
+- `Tie Heavy Baseline`: near-flat categorical matching (`"none"`, `"none"`)
+
+How to run one quickly:
+
+1. Open `src/main.py`
+2. Set `selected_profile` to one of the adversarial keys
+3. Run `python -m src.main`
+4. Inspect top results and explanation reasons for unexpected weighting behavior
 
 ---
 
