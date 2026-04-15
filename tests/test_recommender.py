@@ -1,4 +1,4 @@
-from src.recommender import Song, UserProfile, Recommender
+from src.recommender import DEFAULT_TASTE_PROFILE, Song, UserProfile, Recommender
 
 def make_small_recommender() -> Recommender:
     songs = [
@@ -25,6 +25,18 @@ def make_small_recommender() -> Recommender:
             valence=0.6,
             danceability=0.5,
             acousticness=0.9,
+        ),
+        Song(
+            id=3,
+            title="Heavy Guitar Rush",
+            artist="Test Artist",
+            genre="rock",
+            mood="intense",
+            energy=0.92,
+            tempo_bpm=150,
+            valence=0.45,
+            danceability=0.64,
+            acousticness=0.08,
         ),
     ]
     return Recommender(songs)
@@ -59,3 +71,14 @@ def test_explain_recommendation_returns_non_empty_string():
     explanation = rec.explain_recommendation(user, song)
     assert isinstance(explanation, str)
     assert explanation.strip() != ""
+
+
+def test_default_taste_profile_prefers_intense_rock_over_chill_lofi():
+    rec = make_small_recommender()
+    user = UserProfile(**DEFAULT_TASTE_PROFILE)
+
+    results = rec.recommend(user, k=3)
+
+    assert results[0].genre == "rock"
+    assert results[0].mood == "intense"
+    assert results[0].title == "Heavy Guitar Rush"

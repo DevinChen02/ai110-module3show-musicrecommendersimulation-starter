@@ -17,17 +17,63 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommenders use patterns from user behavior and item metadata to predict what someone will enjoy next. This simulation focuses on a transparent content-based approach: it compares each song's attributes to a user taste profile, assigns a score, and returns the highest-scoring songs. The goal is to make the logic easy to inspect while still producing recommendations that feel relevant.
 
-Some prompts to answer:
+Features used in the simulation:
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+- `Song` fields: `id`, `title`, `artist`, `genre`, `mood`, `energy`, `tempo_bpm`, `valence`, `danceability`, `acousticness`
+- `UserProfile` fields: `favorite_genre`, `favorite_mood`, `target_energy`, `likes_acoustic`
 
-You can include a simple diagram or bullet list if helpful.
+Finalized Algorithm Recipe:
+
+- Start each song at `0.0` points.
+- If `song.genre == user.favorite_genre`: add `+2.0`.
+- If `song.mood == user.favorite_mood`: add `+2.0`.
+- Compute energy similarity: `energy_match = max(0, 1 - abs(song.energy - user.target_energy))`.
+- Add weighted energy points: `+ (energy_match * 2.5)`.
+- Acoustic preference rule:
+   - If `(song.acousticness >= 0.5) == user.likes_acoustic`: add `+0.5`.
+   - Otherwise: subtract `-0.25`.
+- Final score is the sum of all parts above.
+
+Compact formula:
+
+`score = 2.0*genre_match + 2.0*mood_match + 2.5*max(0, 1 - |energy - target_energy|) + acoustic_adjustment`
+
+where `acoustic_adjustment` is `+0.5` for a match and `-0.25` for a mismatch.
+
+Potential bias note:
+
+This system may over-prioritize exact genre and mood matches, so it can miss songs that are musically very close in energy and feel but use different labels. It can also under-recommend niche or less-represented genres if the dataset is imbalanced.
+
+How recommendations are chosen:
+
+- Score every song in the catalog
+- Sort songs from highest score to lowest score
+- Return the top `k` songs (for example, top 5) with short explanations of why they matched
+
+Simple flow:
+
+`UserProfile + Song features -> feature match scores -> total score -> sort -> top-k recommendations`
+
+Data flow diagram (Mermaid.js):
+
+```mermaid
+flowchart LR
+   A[Input: User Preferences\nFavorite Genre, Mood, Target Energy, Likes Acoustic]
+   B[Load Songs from CSV\nSong Catalog]
+   C[Process Loop\nFor each song, compute score]
+   D[Scoring Logic\nGenre + Mood + Energy Similarity + Acoustic Bonus/Penalty]
+   E[Store Song + Score]
+   F[Rank All Songs\nSort by score descending]
+   G[Output: Top K Recommendations]
+
+   A --> C
+   B --> C
+   C --> D --> E --> F --> G
+```
+
+
 
 ---
 
@@ -53,6 +99,10 @@ pip install -r requirements.txt
 ```bash
 python -m src.main
 ```
+
+### CLI Output Screenshot
+
+![CLI verification screenshot](CLIveri.png)
 
 ### Running Tests
 
